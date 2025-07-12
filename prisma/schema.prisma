@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // output   = "../generated/prisma"
 }
 
 datasource db {
@@ -9,12 +8,53 @@ datasource db {
 }
 
 model UserModel {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
   /// Field referred in an index, but found no data to define the type.
-  username  String
-  email     String   @unique
-  password  String
-  role      Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  username    String
+  email       String       @unique
+  password    String
+  phoneNumber Int?
+  role        Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Order       OrderModel[]
+  CarModel    CarModel[]
+}
+
+model OrderModel {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  User        UserModel @relation(fields: [userModelId], references: [id])
+  userModelId String    @db.ObjectId
+  Car         CarModel  @relation(fields: [carModelId], references: [id])
+  carModelId  String    @db.ObjectId
+
+  @@unique([userModelId, carModelId])
+}
+
+model CarModel {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  carName     String
+  carImage    String
+  carNumber   String        @unique
+  distanace   Int
+  capacity    Int
+  fair        Int
+  createdBy   UserModel?    @relation(fields: [userModelId], references: [id])
+  DriverModel DriverModel[]
+  userModelId String        @db.ObjectId
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  OrderModel  OrderModel[]
+}
+
+model DriverModel {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  driverName   String
+  phoneNumber  Int
+  driverAddhar String
+  driverPan    String
+  carDetails   CarModel @relation(fields: [carModelId], references: [id])
+  carModelId   String   @db.ObjectId
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 
@@ -28,7 +28,11 @@ const userMiddleware = async (
       });
     }
 
-    const decodedToken = jwt.verify(token, mySecret as string);
+    if (!mySecret) {
+      throw new Error("Jwt Secret is not defined in environment variables");
+    }
+
+    const decodedToken = jwt.verify(token, mySecret) as JwtPayload;
 
     if (typeof decodedToken == "string") {
       return res.status(400).json({
@@ -37,7 +41,20 @@ const userMiddleware = async (
       });
     }
 
-    req.userId = decodedToken.userId;
+    const existingUser = await prisma.userModel.findFirst({
+      where: {
+        id: decodedToken.userId,
+      },
+    });
+
+    if (!existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "user not found",
+      });
+    }
+
+    req.userId = existingUser.id;
     next();
   } catch (error) {
     return res.status(400).json({
