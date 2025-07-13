@@ -7,7 +7,10 @@ import {
   userSignup,
   userUpdate,
 } from "../../controllers/user/userController";
-import { createOrder } from "../../controllers/user/orderController";
+import {
+  createCarOrder,
+  createTourOrder,
+} from "../../controllers/user/orderController";
 
 const userRoutes = Router();
 
@@ -28,6 +31,10 @@ userRoutes.delete("/delete-user", userMiddleware, deleteUser);
 
 // -------------------------------------------- Order end Points by users only ----------------------------------------------------
 
-userRoutes.post("/create-order", userMiddleware, createOrder);
+// for creating car order
+userRoutes.post("/create-Carorder", userMiddleware, createCarOrder);
+
+// for creating tour orders
+userRoutes.post("/create-tourorder", userMiddleware, createTourOrder);
 
 export { userRoutes };

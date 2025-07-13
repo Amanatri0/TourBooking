@@ -122,4 +122,24 @@ const getAllCarsDetail = async (req: Request, res: Response) => {
   }
 };
 
+const updateCarDetails = async (req: Request, res: Response) => {
+  const adminId = req.userId;
+
+  if (!adminId) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong while updating cars",
+    });
+  }
+
+  try {
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong while Updating Car",
+      error: (error as Error).message,
+    });
+  }
+};
+
 export { createCar, getCarDetails, getAllCarsDetail };

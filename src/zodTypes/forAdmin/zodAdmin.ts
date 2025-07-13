@@ -19,4 +19,12 @@ const CarSchema = z.object({
   // assignedTo: z.string(),
 });
 
-export { CarSchema, UpdateUserRoleSchema };
+// only amdin can create tour packages
+
+const TourSchema = z.object({
+  tourName: z.string(),
+  description: z.string(),
+  fair: z.number().nonnegative(),
+});
+
+export { CarSchema, UpdateUserRoleSchema, TourSchema };

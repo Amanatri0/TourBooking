@@ -9,7 +9,6 @@ datasource db {
 
 model UserModel {
   id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  /// Field referred in an index, but found no data to define the type.
   username    String
   email       String       @unique
   password    String
@@ -22,13 +21,15 @@ model UserModel {
 }
 
 model OrderModel {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  User        UserModel @relation(fields: [userModelId], references: [id])
-  userModelId String    @db.ObjectId
-  Car         CarModel  @relation(fields: [carModelId], references: [id])
-  carModelId  String    @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  User        UserModel  @relation(fields: [userModelId], references: [id])
+  userModelId String     @db.ObjectId
+  Car         CarModel?  @relation(fields: [carModelId], references: [id])
+  carModelId  String?    @db.ObjectId
+  Tour        TourModel? @relation(fields: [tourModelId], references: [id])
+  tourModelId String?    @db.ObjectId
 
-  @@unique([userModelId, carModelId])
+  @@unique([userModelId, carModelId, tourModelId])
 }
 
 model CarModel {
@@ -47,14 +48,25 @@ model CarModel {
   OrderModel  OrderModel[]
 }
 
+model TourModel {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  tourName    String       @unique
+  description String
+  fair        Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  OrderModel  OrderModel[]
+}
+
 model DriverModel {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  driverName   String
-  phoneNumber  Int
-  driverAddhar String
-  driverPan    String
-  carDetails   CarModel @relation(fields: [carModelId], references: [id])
-  carModelId   String   @db.ObjectId
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  driverName    String
+  phoneNumber   Int
+  driverAddhar  String   @unique
+  driverPan     String   @unique
+  driverLicense String   @unique
+  carDetails    CarModel @relation(fields: [carModelId], references: [id])
+  carModelId    String   @db.ObjectId
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
