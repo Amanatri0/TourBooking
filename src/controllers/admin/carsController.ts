@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { CarSchema } from "../../zodTypes/forAdmin/zodAdmin";
+import {
+  CarSchema,
+  DeleteCarSchema,
+  UpdateCarSchema,
+} from "../../zodTypes/forAdmin/zodAdmin";
 
 const prisma = new PrismaClient();
 
@@ -122,6 +126,7 @@ const getAllCarsDetail = async (req: Request, res: Response) => {
   }
 };
 
+// admin can update car details
 const updateCarDetails = async (req: Request, res: Response) => {
   const adminId = req.userId;
 
@@ -132,7 +137,52 @@ const updateCarDetails = async (req: Request, res: Response) => {
     });
   }
 
+  const parsedData = UpdateCarSchema.safeParse(req.body);
+
+  if (!parsedData.success) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide valid details for updating",
+      error: parsedData.error.issues,
+    });
+  }
+
   try {
+    const { id, carName, carImage, carNumber, distanace, capacity, fair } =
+      parsedData.data;
+
+    const existingCar = await prisma.carModel.findFirst({
+      where: {
+        OR: [{ id: id }, { carNumber: carNumber }],
+      },
+    });
+
+    if (!existingCar) {
+      return res.status(400).json({
+        success: false,
+        message: "Car doesn't exists",
+      });
+    }
+
+    const updateCarDetails = await prisma.carModel.update({
+      where: {
+        id: existingCar.id,
+      },
+      data: {
+        carName: carName,
+        carImage: carImage,
+        carNumber: carNumber,
+        distanace: distanace,
+        capacity: capacity,
+        fair: fair,
+      },
+    });
+
+    return res.status(400).json({
+      success: true,
+      message: "Car details updated successfully",
+      data: updateCarDetails,
+    });
   } catch (error) {
     return res.status(400).json({
       success: false,
@@ -142,4 +192,76 @@ const updateCarDetails = async (req: Request, res: Response) => {
   }
 };
 
-export { createCar, getCarDetails, getAllCarsDetail };
+// admin can delete cars
+const deleteCar = async (req: Request, res: Response) => {
+  const adminId = req.userId;
+
+  if (!adminId) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong while updating cars",
+    });
+  }
+
+  const parsedData = DeleteCarSchema.safeParse(req.body);
+
+  if (!parsedData.success) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide valid details for updating",
+      error: parsedData.error.issues,
+    });
+  }
+
+  try {
+    const { id, carNumber } = parsedData.data;
+
+    const existingCar = await prisma.carModel.findFirst({
+      where: {
+        OR: [{ id: id }, { carNumber: carNumber }],
+      },
+    });
+
+    if (!existingCar) {
+      return res.status(400).json({
+        success: false,
+        message: "Car doesn't exists",
+      });
+    }
+
+    const deleteCar = await prisma.carModel.delete({
+      where: {
+        id: existingCar.id,
+        carNumber: existingCar.carNumber,
+        carName: existingCar.carName,
+      },
+    });
+
+    if (!deleteCar) {
+      return res.status(400).json({
+        succes: false,
+        message: "Unable to delete car",
+      });
+    }
+
+    return res.status(400).json({
+      success: true,
+      message: "Car details updated successfully",
+      data: deleteCar,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong while Updating Car",
+      error: (error as Error).message,
+    });
+  }
+};
+
+export {
+  createCar,
+  getCarDetails,
+  getAllCarsDetail,
+  updateCarDetails,
+  deleteCar,
+};

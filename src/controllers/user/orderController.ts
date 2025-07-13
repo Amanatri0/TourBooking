@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// car order
+// car order   ------------>
 const createCarOrder = async (req: Request, res: Response) => {
   const userId = req.userId;
 
@@ -67,7 +67,61 @@ const createCarOrder = async (req: Request, res: Response) => {
   }
 };
 
-// tour package order
+const cancelCarOrder = async (req: Request, res: Response) => {
+  const userId = req.userId;
+
+  if (!userId) {
+    return res.status(404).json({
+      success: false,
+      message: "Order cannot be created",
+    });
+  }
+
+  try {
+    const { carId } = req.body;
+
+    if (!carId) {
+      return res.status(404).json({
+        success: false,
+        message: "Please select a car that you want to cancel",
+      });
+    }
+
+    const existingOrder = await prisma.orderModel.findFirst({
+      where: {
+        userModelId: userId,
+        carModelId: carId,
+      },
+    });
+
+    if (!existingOrder) {
+      return res.status(400).json({
+        success: false,
+        message: "You don't have any order to delete",
+      });
+    }
+
+    const cancelCarOrder = await prisma.orderModel.delete({
+      where: {
+        id: existingOrder.id,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Order Canceled successfully",
+      data: cancelCarOrder,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong while Creating an order",
+      error: (error as Error).message,
+    });
+  }
+};
+
+// tour package order    ---------------->
 const createTourOrder = async (req: Request, res: Response) => {
   const userId = req.userId;
 
@@ -131,4 +185,4 @@ const createTourOrder = async (req: Request, res: Response) => {
   }
 };
 
-export { createCarOrder, createTourOrder };
+export { createCarOrder, createTourOrder, cancelCarOrder };

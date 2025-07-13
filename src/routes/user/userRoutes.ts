@@ -8,6 +8,7 @@ import {
   userUpdate,
 } from "../../controllers/user/userController";
 import {
+  cancelCarOrder,
   createCarOrder,
   createTourOrder,
 } from "../../controllers/user/orderController";
@@ -32,9 +33,15 @@ userRoutes.delete("/delete-user", userMiddleware, deleteUser);
 // -------------------------------------------- Order end Points by users only ----------------------------------------------------
 
 // for creating car order
-userRoutes.post("/create-Carorder", userMiddleware, createCarOrder);
+userRoutes.post("/create-carorder", userMiddleware, createCarOrder);
+
+// Cancel car order
+userRoutes.delete("/cancel-carorder", userMiddleware, cancelCarOrder);
 
 // for creating tour orders
 userRoutes.post("/create-tourorder", userMiddleware, createTourOrder);
+
+// Cancel Tour Order
+// userRoutes.delete("/cancel-tourorder", userMiddleware, createTourOrder);
 
 export { userRoutes };

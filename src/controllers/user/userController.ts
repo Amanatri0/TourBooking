@@ -82,9 +82,11 @@ const userLogin = async (req: Request, res: Response) => {
   }
 
   try {
+    const { email, password } = parsedData.data;
+
     const existingUser = await prisma.userModel.findFirst({
       where: {
-        email: parsedData.data.email,
+        email: email,
       },
     });
 
@@ -97,18 +99,15 @@ const userLogin = async (req: Request, res: Response) => {
     }
 
     //password verification
-    if (
-      !parsedData.data.password ||
-      typeof parsedData.data.password !== "string"
-    ) {
+    if (!password || typeof password !== "string") {
       return res.status(400).json({
         success: false,
         message: "Password/Email is incorrect, while Login",
       });
     }
 
-    const decodedPassword = bcrypt.compare(
-      parsedData.data.password,
+    const decodedPassword = await bcrypt.compare(
+      password,
       existingUser.password
     );
 
@@ -178,6 +177,8 @@ const userGetDetails = async (req: Request, res: Response) => {
 const userUpdate = async (req: Request, res: Response) => {
   const userId = req.userId;
 
+  console.log(userId, "User id fetchded ");
+
   // get the updated data from user
   const parsedData = UpdateUserinfo.safeParse(req.body);
 
@@ -188,6 +189,8 @@ const userUpdate = async (req: Request, res: Response) => {
       error: parsedData.error.issues,
     });
   }
+
+  console.log("Successfully parsed data successfull");
 
   try {
     // check if the user exixts
@@ -207,12 +210,20 @@ const userUpdate = async (req: Request, res: Response) => {
       });
     }
 
+    if (existingUser.email === email) {
+      return res.status(400).json({
+        success: false,
+        message: "User with the same email address exists",
+      });
+    }
+
     if (!oldPassword) {
       return res.status(400).json({
         success: false,
         message: "Password is incorrect",
       });
     }
+    console.log("Old password successfull");
 
     // verify the old password
     const verifiedPassword = await bcrypt.compare(
@@ -226,6 +237,7 @@ const userUpdate = async (req: Request, res: Response) => {
         message: "Password is not correct",
       });
     }
+    console.log("Verified password successfull");
 
     if (!newPassword) {
       return res.status(400).json({
@@ -234,9 +246,12 @@ const userUpdate = async (req: Request, res: Response) => {
       });
     }
 
+    console.log("New password successfull");
+
     // hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+    console.log("Hashed password successfull");
     // update user
     const updateUserDetails = await prisma.userModel.update({
       where: {
@@ -248,6 +263,8 @@ const userUpdate = async (req: Request, res: Response) => {
         password: hashedPassword,
       },
     });
+
+    console.log("Updated user successfull password successfull");
 
     res.status(200).json({
       status: true,
@@ -266,6 +283,7 @@ const userUpdate = async (req: Request, res: Response) => {
 //
 const deleteUser = async (req: Request, res: Response) => {
   const userId = req.userId;
+  const { password } = req.body;
 
   try {
     const userData = await prisma.userModel.findFirst({
@@ -278,6 +296,22 @@ const deleteUser = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: "User not found",
+      });
+    }
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide your password before deleting",
+      });
+    }
+
+    const validPassowrd = await bcrypt.compare(password, userData.password);
+
+    if (!validPassowrd) {
+      return res.status(400).json({
+        success: false,
+        message: "Password incorrect",
       });
     }
 
@@ -297,7 +331,8 @@ const deleteUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json({
       success: false,
-      message: "Something went wrong while Deleting user",
+      message:
+        "Something went wrong while Deleting user, you might have orders that are not completed. Please complete or delete the order",
       error: (error as Error).message,
     });
   }

@@ -51,10 +51,12 @@ const updateUserRole = async (req: Request, res: Response) => {
 
   if (!parsedData.success) {
     return res.status(400).json({
-      message: "Please enter valid information, while signing",
+      message: "Please enter valid information, while updating",
       success: false,
+      error: parsedData.error.issues,
     });
   }
+
   try {
     const { id, email, newRole } = parsedData.data;
 
