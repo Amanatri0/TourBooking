@@ -9,6 +9,7 @@ import {
 } from "../../controllers/user/userController";
 import {
   cancelCarOrder,
+  cancelTourOrder,
   createCarOrder,
   createTourOrder,
 } from "../../controllers/user/orderController";
@@ -42,6 +43,6 @@ userRoutes.delete("/cancel-carorder", userMiddleware, cancelCarOrder);
 userRoutes.post("/create-tourorder", userMiddleware, createTourOrder);
 
 // Cancel Tour Order
-// userRoutes.delete("/cancel-tourorder", userMiddleware, createTourOrder);
+userRoutes.delete("/cancel-tourorder", userMiddleware, cancelTourOrder);
 
 export { userRoutes };

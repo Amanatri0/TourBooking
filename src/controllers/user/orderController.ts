@@ -185,4 +185,58 @@ const createTourOrder = async (req: Request, res: Response) => {
   }
 };
 
-export { createCarOrder, createTourOrder, cancelCarOrder };
+const cancelTourOrder = async (req: Request, res: Response) => {
+  const userId = req.userId;
+
+  if (!userId) {
+    return res.status(404).json({
+      success: false,
+      message: "Order cannot be created",
+    });
+  }
+
+  try {
+    const { tourId } = req.body;
+
+    if (!tourId) {
+      return res.status(404).json({
+        success: false,
+        message: "Please provide a Tour that you want to order",
+      });
+    }
+
+    const existingOrder = await prisma.orderModel.findFirst({
+      where: {
+        userModelId: userId,
+        tourModelId: tourId,
+      },
+    });
+
+    if (!existingOrder) {
+      return res.status(400).json({
+        success: false,
+        message: "You don't have any order to delete",
+      });
+    }
+
+    const createOrder = await prisma.orderModel.delete({
+      where: {
+        id: existingOrder.id,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Order Deleted successfully",
+      data: createOrder,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong while Deleting an order",
+      error: (error as Error).message,
+    });
+  }
+};
+
+export { createCarOrder, createTourOrder, cancelCarOrder, cancelTourOrder };
