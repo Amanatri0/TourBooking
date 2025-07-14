@@ -16,6 +16,8 @@ import {
   createTour,
   getTourDetails,
 } from "../../controllers/admin/toursController";
+import { uploadImages } from "../../controllers/admin/bunnyImages";
+import { upload } from "../../middleware/multer";
 
 const adminRoutes = Router();
 
@@ -75,6 +77,14 @@ adminRoutes.get(
   userMiddleware,
   adminMiddleware,
   getTourDetails
+);
+
+adminRoutes.post(
+  "/upload-images",
+  userMiddleware,
+  adminMiddleware,
+  upload.single("images"),
+  uploadImages
 );
 
 export { adminRoutes };
