@@ -11,8 +11,16 @@ const prisma = new PrismaClient();
 // car creaetd by admin
 const createCar = async (req: Request, res: Response) => {
   const adminId = req.userId;
+  const carImage = req.carImageUrl;
 
   if (!adminId) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong while creating cars",
+    });
+  }
+
+  if (!carImage) {
     return res.status(400).json({
       success: false,
       message: "Something went wrong while creating cars",
@@ -29,7 +37,8 @@ const createCar = async (req: Request, res: Response) => {
     });
   }
   try {
-    const { carName, carNumber, distance, capacity, fair } = parsedData.data;
+    const { carName, carNumber, distance, capacity, fair, carImage } =
+      parsedData.data;
 
     const existingCar = await prisma.carModel.findFirst({
       where: {
@@ -47,7 +56,7 @@ const createCar = async (req: Request, res: Response) => {
     const createCar = await prisma.carModel.create({
       data: {
         carName: carName,
-        carImage: "",
+        carImage: carImage,
         carNumber: carNumber,
         distanace: distance,
         capacity: capacity,
@@ -153,7 +162,7 @@ const updateCarDetails = async (req: Request, res: Response) => {
 
     const existingCar = await prisma.carModel.findFirst({
       where: {
-        OR: [{ id: id }, { carNumber: carNumber }],
+        OR: [{ id: id }, { carNumber: carNumber }], // Implement this in all route
       },
     });
 

@@ -17,6 +17,8 @@ const UpdateUserRoleSchema = z.object({
     ),
 });
 
+//------------------------------------------------------- Car Validator ----------------------------------------------------------
+
 // only admin can create cars
 const CarSchema = z.object({
   carName: z.string().nonempty(),
@@ -26,18 +28,18 @@ const CarSchema = z.object({
   capacity: z.number().nonnegative(),
   fair: z.number().nonnegative(),
   // createdBy: z.string(),
-  // assignedTo: z.string(),
+  // assignedTo: z.string(),   // ---> try to solve it
 });
 
 // update car schema
 const UpdateCarSchema = z.object({
-  id: z.string().nonempty(),
-  carName: z.string(),
-  carImage: z.string(),
-  carNumber: z.string().trim(),
-  distanace: z.number().nonnegative(),
-  capacity: z.number().nonnegative(),
-  fair: z.number().nonnegative(),
+  id: z.string().nonempty().optional(),
+  carName: z.string().optional(),
+  carImage: z.string().optional(),
+  carNumber: z.string().trim().optional(),
+  distanace: z.number().nonnegative().optional(),
+  capacity: z.number().nonnegative().optional(),
+  fair: z.number().nonnegative().optional(),
 });
 
 //delete car
@@ -46,6 +48,8 @@ const DeleteCarSchema = z.object({
   carName: z.string().optional(),
   carNumber: z.string().trim(),
 });
+
+//------------------------------------------------------- Tour Validator ----------------------------------------------------------
 
 // only amdin can create tour packages
 const TourSchema = z.object({
@@ -56,16 +60,63 @@ const TourSchema = z.object({
 
 // update tour
 const UpdateTourSchema = z.object({
-  id: z.string().nonempty(),
-  tourName: z.string().trim(),
-  description: z.string(),
-  fair: z.number().nonnegative(),
+  id: z.string().nonempty().optional(),
+  tourName: z.string().trim().optional(),
+  description: z.string().optional(),
+  fair: z.number().nonnegative().optional(),
 });
 
 // Delete tour
 const DeleteTourSchema = z.object({
   id: z.string().nonempty().trim(),
   tourName: z.string().trim().optional(),
+});
+
+//------------------------------------------------------- Driver Validator ----------------------------------------------------------
+
+// Create Driver
+const DriverSchema = z.object({
+  driverName: z.string().nonempty(),
+  phoneNumber: z
+    .string()
+    .regex(/^\d{10}$/, { message: "Phone number must be exactly 10 digits" }),
+  driverAddhar: z
+    .string()
+    .regex(/^\d{12}$/, { message: "Aadhar must be exactly 12 digits" }),
+  driverPan: z
+    .string()
+    .length(10, { message: "PAN must be exactly 10 characters" }),
+  driverLicense: z
+    .string()
+    .trim()
+    .length(15, { message: "License number must be exactly 15 characters" }),
+  carId: z.string(),
+});
+
+// Update Driver details
+const UpdateDriverSchema = z.object({
+  driverName: z.string().nonempty().optional(),
+  phoneNumber: z
+    .string()
+    .regex(/^\d{10}$/, { message: "Phone number must be exactly 10 digits" })
+    .optional(),
+
+  driverAddhar: z
+    .string()
+    .regex(/^\d{12}$/, { message: "Aadhar must be exactly 12 digits" })
+    .optional(),
+
+  driverPan: z
+    .string()
+    .length(10, { message: "PAN must be exactly 10 characters" })
+    .optional(),
+
+  driverLicense: z
+    .string()
+    .trim()
+    .length(15, { message: "License number must be exactly 15 characters" })
+    .optional(),
+  carId: z.string().optional(),
 });
 
 export {
@@ -76,4 +127,6 @@ export {
   UpdateTourSchema,
   DeleteCarSchema,
   DeleteTourSchema,
+  DriverSchema,
+  UpdateDriverSchema,
 };

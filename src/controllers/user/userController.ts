@@ -31,6 +31,7 @@ const userSignup = async (req: Request, res: Response) => {
   // try catch for correct information
   try {
     // check for already existing users
+
     const existingUser = await prisma.userModel.findFirst({
       where: {
         email: parsedData.data.email,
@@ -71,6 +72,7 @@ const userSignup = async (req: Request, res: Response) => {
 // user login end point
 const userLogin = async (req: Request, res: Response) => {
   // zod check for input validation while providing user details
+
   const parsedData = LoginSchema.safeParse(req.body);
 
   if (!parsedData.success) {
@@ -96,6 +98,18 @@ const userLogin = async (req: Request, res: Response) => {
         message: "Please Signin before login",
         success: false,
       });
+    }
+
+    if (!existingUser.isActive) {
+      await prisma.userModel.update({
+        where: {
+          id: existingUser.id,
+        },
+        data: {
+          isActive: true,
+        },
+      });
+      console.log("User is activated");
     }
 
     //password verification
@@ -281,7 +295,7 @@ const userUpdate = async (req: Request, res: Response) => {
 };
 
 //
-const deleteUser = async (req: Request, res: Response) => {
+const disableUser = async (req: Request, res: Response) => {
   const userId = req.userId;
   const { password } = req.body;
 
@@ -317,15 +331,18 @@ const deleteUser = async (req: Request, res: Response) => {
 
     //NOTE:- add one more database query where it delete orders of the user as well before deleting the user deatils
 
-    const userDeleted = await prisma.userModel.delete({
+    const userDeleted = await prisma.userModel.update({
       where: {
         id: userData.id,
+      },
+      data: {
+        isActive: false,
       },
     });
 
     res.status(200).json({
       success: true,
-      message: "user Deleted successfully",
+      message: "User diactivated successfully",
       data: userDeleted,
     });
   } catch (error) {
@@ -338,4 +355,4 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export { userSignup, userLogin, userGetDetails, userUpdate, deleteUser };
+export { userSignup, userLogin, userGetDetails, userUpdate, disableUser };

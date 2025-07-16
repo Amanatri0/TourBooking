@@ -16,8 +16,15 @@ import {
   createTour,
   getTourDetails,
 } from "../../controllers/admin/toursController";
-import { uploadImages } from "../../controllers/admin/bunnyImages";
-import { upload } from "../../middleware/multer";
+import { uploadImages } from "../../middleware/multer/bunnyImages";
+import { upload } from "../../middleware/multer/multer";
+import {
+  addDriver,
+  disableDriver,
+  getAllDriverDetails,
+  getDriver,
+  updateDriver,
+} from "../../controllers/admin/driverController";
 
 const adminRoutes = Router();
 
@@ -40,7 +47,14 @@ adminRoutes.put(
 //-------------------------------------------------------- Car endpoint -----------------------------------------------------------------------
 
 // Can create new cars according to needs
-adminRoutes.post("/create-car", userMiddleware, adminMiddleware, createCar);
+adminRoutes.post(
+  "/create-car",
+  userMiddleware,
+  adminMiddleware,
+  upload.single("images"),
+  uploadImages,
+  createCar
+);
 
 // Can update existing cars
 adminRoutes.put(
@@ -72,6 +86,7 @@ adminRoutes.get(
 // ------------------------------------------------------- Tour endpoint ----------------------------------------------------------------------
 
 adminRoutes.post("/create-tour", userMiddleware, adminMiddleware, createTour);
+
 adminRoutes.get(
   "/get-tourDetail",
   userMiddleware,
@@ -79,12 +94,33 @@ adminRoutes.get(
   getTourDetails
 );
 
-adminRoutes.post(
-  "/upload-images",
+// -------------------------------------------------------- Driver Endpoint --------------------------------------------------------------------
+
+adminRoutes.post("add-driver", userMiddleware, adminMiddleware, addDriver);
+adminRoutes.get(
+  "get-driverDetails",
   userMiddleware,
   adminMiddleware,
-  upload.single("images"),
-  uploadImages
+  getDriver
+);
+adminRoutes.get(
+  "get-allDriveriverDetails",
+  userMiddleware,
+  adminMiddleware,
+  getAllDriverDetails
+);
+adminRoutes.put(
+  "update-driverDetails",
+  userMiddleware,
+  adminMiddleware,
+  updateDriver
+);
+
+adminRoutes.delete(
+  "delete-driverDetails",
+  userMiddleware,
+  adminMiddleware,
+  disableDriver
 );
 
 export { adminRoutes };
