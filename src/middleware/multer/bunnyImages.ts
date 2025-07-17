@@ -14,6 +14,9 @@ import axios from "axios";
 import crypto from "crypto";
 import path from "path";
 import multer from "multer";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const BUNNY_ACCESS_KEY = process.env.BUNNY_ACCESS_KEY!;
 const STORAGE_ZONE = process.env.STORAGE_ZONE;
@@ -27,6 +30,7 @@ const uploadImages = async (
 ) => {
   try {
     const file = req.file;
+    const carId = req.body;
 
     if (!file) {
       return res.status(400).json({
@@ -52,9 +56,33 @@ const uploadImages = async (
 
     // Save the URL in MongoDB using Prisma (adapt this to your schema)
 
-    req.carImageUrl = publicUrl;
+    const existingCar = await prisma.carModel.findFirst({
+      where: {
+        id: carId,
+      },
+    });
 
-    next();
+    if (!existingCar) {
+      return res.status(400).json({
+        success: false,
+        message: "Car doesn't exist",
+      });
+    }
+
+    const updateImage = await prisma.carModel.update({
+      where: {
+        id: existingCar.id,
+      },
+      data: {
+        carImage: publicUrl,
+      },
+    });
+
+    return res.status(200).json({
+      success: false,
+      message: "Image upload successfully",
+      data: updateImage,
+    });
   } catch (err: any) {
     if (err instanceof multer.MulterError) {
       if (err.code === "LIMIT_FILE_SIZE") {
@@ -71,6 +99,6 @@ const uploadImages = async (
   }
 };
 
-const deleteImages = async (req: Request, res: Response) => {};
+// const deleteImages = async (req: Request, res: Response) => {};
 
 export { uploadImages };

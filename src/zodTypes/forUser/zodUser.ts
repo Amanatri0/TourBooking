@@ -44,8 +44,8 @@ const UpdateUserinfo = z
       .trim()
       .optional(),
     phoneNumber: z
-      .number()
-      .min(10, "Please enter a valid phone number")
+      .string()
+      .regex(/^\d{10}$/, { message: "Phone number must be exactly 10 digits" })
       .optional(),
     oldPassword: z
       .string()

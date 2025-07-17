@@ -14,7 +14,10 @@ import {
 } from "../../controllers/admin/carsController";
 import {
   createTour,
+  deleteTour,
+  getAllToursDetail,
   getTourDetails,
+  updateTourDetails,
 } from "../../controllers/admin/toursController";
 import { uploadImages } from "../../middleware/multer/bunnyImages";
 import { upload } from "../../middleware/multer/multer";
@@ -47,13 +50,14 @@ adminRoutes.put(
 //-------------------------------------------------------- Car endpoint -----------------------------------------------------------------------
 
 // Can create new cars according to needs
+adminRoutes.post("/create-car", userMiddleware, adminMiddleware, createCar);
+
 adminRoutes.post(
-  "/create-car",
+  "/upload-carImage",
   userMiddleware,
   adminMiddleware,
   upload.single("images"),
-  uploadImages,
-  createCar
+  uploadImages
 );
 
 // Can update existing cars
@@ -85,14 +89,35 @@ adminRoutes.get(
 
 // ------------------------------------------------------- Tour endpoint ----------------------------------------------------------------------
 
+// for creating tour package
 adminRoutes.post("/create-tour", userMiddleware, adminMiddleware, createTour);
 
+// to get single tour details tour package
 adminRoutes.get(
   "/get-tourDetail",
   userMiddleware,
   adminMiddleware,
   getTourDetails
 );
+
+// to fetch all the tours details available
+adminRoutes.get(
+  "/get-allTourDetail",
+  userMiddleware,
+  adminMiddleware,
+  getAllToursDetail
+);
+
+// to update tour detail
+adminRoutes.put(
+  "/update-tourDetail",
+  userMiddleware,
+  adminMiddleware,
+  updateTourDetails
+);
+
+// to delete tour
+adminRoutes.delete("/delete-tour", userMiddleware, adminMiddleware, deleteTour);
 
 // -------------------------------------------------------- Driver Endpoint --------------------------------------------------------------------
 

@@ -12,7 +12,7 @@ model UserModel {
   username    String
   email       String       @unique
   password    String
-  phoneNumber Int?
+  phoneNumber String?
   role        Int          @default(0)
   isActive    Boolean      @default(true)
   createdAt   DateTime     @default(now())

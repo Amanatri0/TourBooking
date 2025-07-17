@@ -136,7 +136,9 @@ const userLogin = async (req: Request, res: Response) => {
       throw new Error("Jwt secret is not defined");
     }
 
-    const token = jwt.sign({ userId: existingUser.id }, mySecret);
+    const token = jwt.sign({ userId: existingUser.id }, mySecret, {
+      expiresIn: "2h",
+    });
 
     res.status(200).json({
       success: true,
@@ -191,8 +193,6 @@ const userGetDetails = async (req: Request, res: Response) => {
 const userUpdate = async (req: Request, res: Response) => {
   const userId = req.userId;
 
-  console.log(userId, "User id fetchded ");
-
   // get the updated data from user
   const parsedData = UpdateUserinfo.safeParse(req.body);
 
@@ -204,12 +204,11 @@ const userUpdate = async (req: Request, res: Response) => {
     });
   }
 
-  console.log("Successfully parsed data successfull");
-
   try {
     // check if the user exixts
 
-    const { username, email, oldPassword, newPassword } = parsedData.data;
+    const { username, email, oldPassword, newPassword, phoneNumber } =
+      parsedData.data;
 
     const existingUser = await prisma.userModel.findFirst({
       where: {
@@ -237,7 +236,6 @@ const userUpdate = async (req: Request, res: Response) => {
         message: "Password is incorrect",
       });
     }
-    console.log("Old password successfull");
 
     // verify the old password
     const verifiedPassword = await bcrypt.compare(
@@ -251,7 +249,6 @@ const userUpdate = async (req: Request, res: Response) => {
         message: "Password is not correct",
       });
     }
-    console.log("Verified password successfull");
 
     if (!newPassword) {
       return res.status(400).json({
@@ -260,12 +257,9 @@ const userUpdate = async (req: Request, res: Response) => {
       });
     }
 
-    console.log("New password successfull");
-
     // hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    console.log("Hashed password successfull");
     // update user
     const updateUserDetails = await prisma.userModel.update({
       where: {
@@ -275,10 +269,11 @@ const userUpdate = async (req: Request, res: Response) => {
         username: username,
         email: email,
         password: hashedPassword,
+        // phoneNumber: phoneNumber,
       },
     });
 
-    console.log("Updated user successfull password successfull");
+    //FIXME  After updating the use the old JWT token should not be valid,
 
     res.status(200).json({
       status: true,
