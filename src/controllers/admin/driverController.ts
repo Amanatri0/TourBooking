@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { DriverSchema } from "../../zodTypes/forAdmin/zodAdmin";
+import {
+  DriverSchema,
+  UpdateDriverSchema,
+} from "../../zodTypes/forAdmin/zodAdmin";
 
 const prisma = new PrismaClient();
 
@@ -102,7 +105,7 @@ const getDriver = async (req: Request, res: Response) => {
   }
 
   try {
-    const driverId = req.body;
+    const { driverId } = req.body;
 
     if (!driverId) {
       return res.status(400).json({
@@ -111,7 +114,7 @@ const getDriver = async (req: Request, res: Response) => {
       });
     }
 
-    const existingDriver = prisma.driverModel.findFirst({
+    const existingDriver = await prisma.driverModel.findFirst({
       where: {
         id: driverId,
       },
@@ -123,6 +126,8 @@ const getDriver = async (req: Request, res: Response) => {
         message: "Driver is doesn't exist",
       });
     }
+
+    console.log(existingDriver);
 
     return res.status(200).json({
       success: true,
@@ -149,7 +154,7 @@ const getAllDriverDetails = async (req: Request, res: Response) => {
   }
 
   try {
-    const existingDrivers = prisma.driverModel.findMany({});
+    const existingDrivers = await prisma.driverModel.findMany({});
 
     if (!existingDrivers) {
       return res.status(400).json({
@@ -182,7 +187,7 @@ const updateDriver = async (req: Request, res: Response) => {
     });
   }
 
-  const parsedData = DriverSchema.safeParse(req.body);
+  const parsedData = UpdateDriverSchema.safeParse(req.body);
 
   if (!parsedData.success) {
     return res.status(400).json({
@@ -231,7 +236,7 @@ const updateDriver = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: "New Driver has been created",
+      message: "Driver has been updated",
       data: updateDriverDetails,
     });
   } catch (error) {

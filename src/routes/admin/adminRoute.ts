@@ -121,28 +121,29 @@ adminRoutes.delete("/delete-tour", userMiddleware, adminMiddleware, deleteTour);
 
 // -------------------------------------------------------- Driver Endpoint --------------------------------------------------------------------
 
-adminRoutes.post("add-driver", userMiddleware, adminMiddleware, addDriver);
-adminRoutes.get(
-  "get-driverDetails",
+adminRoutes.post("/add-driver", userMiddleware, adminMiddleware, addDriver);
+adminRoutes.post(
+  "/get-driverDetails",
   userMiddleware,
   adminMiddleware,
   getDriver
 );
+
 adminRoutes.get(
-  "get-allDriveriverDetails",
+  "/get-allDriverDetails",
   userMiddleware,
   adminMiddleware,
   getAllDriverDetails
 );
 adminRoutes.put(
-  "update-driverDetails",
+  "/update-driverDetails",
   userMiddleware,
   adminMiddleware,
   updateDriver
 );
 
 adminRoutes.delete(
-  "delete-driverDetails",
+  "/delete-driverDetails",
   userMiddleware,
   adminMiddleware,
   disableDriver
