@@ -1,23 +1,26 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
-const mySecret = process.env.JWT_SECRET;
-
-if (!mySecret) {
-  throw new Error("Please provide a valid secret");
-}
+const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 
 const generateAccessTokens = (userId: string) => {
-  const accessToken = jwt.sign({ userId: userId }, mySecret, {
+  if (!accessTokenSecret) {
+    throw new Error("Please provide a valid secret");
+  }
+  const accessToken = jwt.sign({ userId: userId }, accessTokenSecret, {
     expiresIn: "2h",
   });
   return accessToken;
 };
 
 const generateRefreshTokens = (userId: string) => {
-  const refreshToken = jwt.sign({ userId: userId }, mySecret, {
+  if (!refreshTokenSecret) {
+    throw new Error("Please provide a valid secret");
+  }
+  const refreshToken = jwt.sign({ userId: userId }, refreshTokenSecret, {
     expiresIn: "7d",
   });
 

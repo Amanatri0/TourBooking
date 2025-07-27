@@ -11,7 +11,7 @@ import { PrismaClient } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 
 const prisma = new PrismaClient();
-const mySecret = process.env.JWT_SECRET;
+const mySecret = process.env.ACCESS_TOKEN_SECRET;
 
 const userMiddleware = async (
   req: Request,

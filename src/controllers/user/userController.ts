@@ -10,7 +10,7 @@ import {
 import { PrismaClient } from "@prisma/client";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { generateAccessTokens } from "../../utils/token";
+import { generateAccessTokens, generateRefreshTokens } from "../../utils/token";
 
 const mySecret = process.env.JWT_SECRET;
 
@@ -137,14 +137,18 @@ const userLogin = async (req: Request, res: Response) => {
       throw new Error("Jwt secret is not defined");
     }
 
-    const token = jwt.sign({ userId: existingUser.id }, mySecret, {
-      expiresIn: "2h",
-    });
+    // const token = jwt.sign({ userId: existingUser.id }, mySecret, {
+    //   expiresIn: "2h",
+    // });
+    const accessToken = generateAccessTokens(existingUser.id);
+
+    const refreshToken = generateRefreshTokens(existingUser.id);
 
     res.status(200).json({
       success: true,
       message: "User login successfull",
-      Token: token,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     });
   } catch (error) {
     return res.status(400).json({
@@ -366,15 +370,11 @@ const refreshToken = async (req: Request, res: Response) => {
     });
   }
 
-  if (!mySecret) {
-    return res.status(500).json({
-      success: false,
-      message: "JWT secret not configured",
-    });
-  }
-
   try {
-    const decoded = jwt.verify(incomingRefreshToken, mySecret) as JwtPayload;
+    const decoded = jwt.verify(
+      incomingRefreshToken,
+      process.env.ACCESS_TOKEN_SECRET!
+    ) as JwtPayload;
 
     const user = await prisma.userModel.findFirst({
       where: { id: decoded.userId },
