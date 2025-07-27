@@ -2,6 +2,7 @@ import { Router } from "express";
 import { userMiddleware } from "../../middleware/userMiddleware";
 import {
   disableUser,
+  refreshToken,
   userGetDetails,
   userLogin,
   userSignup,
@@ -30,6 +31,8 @@ userRoutes.put("/update-details", userMiddleware, userUpdate);
 
 // delete user
 userRoutes.delete("/delete-user", userMiddleware, disableUser);
+
+userRoutes.post("/refreshToken", userMiddleware, refreshToken);
 
 // -------------------------------------------- Order end Points by users only ----------------------------------------------------
 

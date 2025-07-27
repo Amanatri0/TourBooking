@@ -8,8 +8,9 @@ import {
   UpdateUserinfo,
 } from "../../zodTypes/forUser/zodUser";
 import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { generateAccessTokens } from "../../utils/token";
 
 const mySecret = process.env.JWT_SECRET;
 
@@ -350,4 +351,61 @@ const disableUser = async (req: Request, res: Response) => {
   }
 };
 
-export { userSignup, userLogin, userGetDetails, userUpdate, disableUser };
+// refresh and access token endpoints
+
+const refreshToken = async (req: Request, res: Response) => {
+  const incomingRefreshToken =
+    req.cookies?.refreshToken ||
+    req.body?.refreshToken ||
+    req.headers["authorization"];
+
+  if (!incomingRefreshToken) {
+    return res.status(401).json({
+      success: false,
+      message: "Refresh token not provided",
+    });
+  }
+
+  if (!mySecret) {
+    return res.status(500).json({
+      success: false,
+      message: "JWT secret not configured",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(incomingRefreshToken, mySecret) as JwtPayload;
+
+    const user = await prisma.userModel.findFirst({
+      where: { id: decoded.userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const newAccessToken = generateAccessTokens(user.id);
+
+    return res.status(200).json({
+      success: true,
+      accessToken: newAccessToken,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired refresh token",
+    });
+  }
+};
+
+export {
+  userSignup,
+  userLogin,
+  userGetDetails,
+  userUpdate,
+  disableUser,
+  refreshToken,
+};
