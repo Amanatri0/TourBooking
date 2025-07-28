@@ -38,9 +38,9 @@ model CarModel {
   carName     String
   carImage    String
   carNumber   String        @unique
-  distanace   Int
-  capacity    Int
-  fair        Int
+  distance    String
+  capacity    String
+  fair        String
   createdBy   UserModel?    @relation(fields: [userModelId], references: [id])
   DriverModel DriverModel[]
   userModelId String        @db.ObjectId

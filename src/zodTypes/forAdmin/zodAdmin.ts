@@ -22,11 +22,11 @@ const UpdateUserRoleSchema = z.object({
 // only admin can create cars
 const CarSchema = z.object({
   carName: z.string().nonempty(),
-  carImage: z.string().nonempty(),
+  carImage: z.string().nonempty().optional(),
   carNumber: z.string().nonempty().trim(),
-  distance: z.number().nonnegative(),
-  capacity: z.number().nonnegative(),
-  fair: z.number().nonnegative(),
+  distance: z.string().nonempty(),
+  capacity: z.string().nonempty(),
+  fair: z.string().nonempty(),
   // createdBy: z.string(),
   // assignedTo: z.string(),   // ---> try to solve it
 });
@@ -37,9 +37,9 @@ const UpdateCarSchema = z.object({
   carName: z.string().optional(),
   carImage: z.string().optional(),
   carNumber: z.string().trim().optional(),
-  distanace: z.number().nonnegative().optional(),
-  capacity: z.number().nonnegative().optional(),
-  fair: z.number().nonnegative().optional(),
+  distanace: z.string().nonempty().optional(),
+  capacity: z.string().nonempty().optional(),
+  fair: z.string().nonempty().optional(),
 });
 
 //delete car

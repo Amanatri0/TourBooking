@@ -19,7 +19,7 @@ import {
   getTourDetails,
   updateTourDetails,
 } from "../../controllers/admin/toursController";
-import { uploadImages } from "../../middleware/multer/bunnyImages";
+// import { uploadImages } from "../../middleware/multer/bunnyImages";
 import { upload } from "../../middleware/multer/multer";
 import {
   addDriver,
@@ -49,16 +49,22 @@ adminRoutes.put(
 
 //-------------------------------------------------------- Car endpoint -----------------------------------------------------------------------
 
-// Can create new cars according to needs
-adminRoutes.post("/create-car", userMiddleware, adminMiddleware, createCar);
-
+// Can create new cars according to needs and add images
 adminRoutes.post(
-  "/upload-carImage",
+  "/create-car",
   userMiddleware,
   adminMiddleware,
   upload.single("images"),
-  uploadImages
+  createCar
 );
+
+// adminRoutes.post(
+//   "/upload-carImage",
+//   userMiddleware,
+//   adminMiddleware,
+
+//   uploadImages
+// );
 
 // Can update existing cars
 adminRoutes.put(

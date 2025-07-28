@@ -1,3 +1,18 @@
+declare global {
+  namespace Express {
+    interface Request {
+      carImageUrl?: string;
+    }
+  }
+}
+
+import dotenv from "dotenv";
+
+dotenv.config();
+import axios from "axios";
+import crypto from "crypto";
+import path from "path";
+// import multer from "multer";
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import {
@@ -7,6 +22,32 @@ import {
 } from "../../zodTypes/forAdmin/zodAdmin";
 
 const prisma = new PrismaClient();
+
+const BUNNY_ACCESS_KEY = process.env.BUNNY_ACCESS_KEY!;
+const STORAGE_ZONE = process.env.STORAGE_ZONE;
+const FOLDER = process.env.FOLDER;
+const CDN_URL = process.env.CDN_URL!;
+
+// upload car images
+const uploadImages = async (file: Express.Multer.File, carId: string) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  const fileName = `${crypto.randomBytes(20).toString("hex")}${ext}`;
+
+  const uploadUrl = `https://storage.bunnycdn.com/${STORAGE_ZONE}/${FOLDER}/${fileName}`;
+
+  // Upload to Bunny using Axios
+  await axios.put(uploadUrl, file.buffer, {
+    headers: {
+      AccessKey: BUNNY_ACCESS_KEY,
+      "Content-Type": file.mimetype,
+    },
+    maxBodyLength: Infinity, // Chnage the body length according to the image size
+  } as any);
+
+  const publicUrl = `${CDN_URL}/${FOLDER}/${fileName}`;
+
+  return publicUrl;
+};
 
 // car creaetd by admin
 const createCar = async (req: Request, res: Response) => {
@@ -19,7 +60,33 @@ const createCar = async (req: Request, res: Response) => {
     });
   }
 
+  // get the file from the file-data
+  const file = req.file;
+
+  console.log("Req body", req.body);
+
+  console.log("Fie name", file);
+
+  if (!req.file || !file) {
+    return res.status(404).json({
+      success: false,
+      message: "File not found",
+    });
+  }
+
+  console.log("✅ File uploaded:");
+  console.log("Original name:", req.file.originalname);
+  console.log("MIME type:", req.file.mimetype);
+  console.log("Size (bytes):", req.file.size);
+  console.log("Buffer length:", req.file.buffer?.length);
+
+  console.log("Car Name:", req.body.carName);
+  console.log("Car Number:", req.body.carNumber);
+
+  // zod input validation
   const parsedData = CarSchema.safeParse(req.body);
+
+  console.log("Parsed Data", parsedData);
 
   if (!parsedData.success) {
     return res.status(400).json({
@@ -28,6 +95,7 @@ const createCar = async (req: Request, res: Response) => {
       error: parsedData.error.issues,
     });
   }
+
   try {
     const { carName, carNumber, distance, capacity, fair } = parsedData.data;
 
@@ -49,7 +117,7 @@ const createCar = async (req: Request, res: Response) => {
         carName: carName,
         carImage: "",
         carNumber: carNumber,
-        distanace: distance,
+        distance: distance,
         capacity: capacity,
         fair: fair,
         createdBy: {
@@ -60,10 +128,37 @@ const createCar = async (req: Request, res: Response) => {
       },
     });
 
+    if (!createCar) {
+      return res.status(404).json({
+        success: false,
+        message: "Unable to create Car",
+      });
+    }
+
+    const uploadedImages = await uploadImages(file, createCar.id);
+
+    console.log(uploadedImages);
+
+    if (!uploadedImages) {
+      return res.status(404).json({
+        success: false,
+        message: "Unable to Upload Car images",
+      });
+    }
+
+    const carCreated = await prisma.carModel.update({
+      where: {
+        id: createCar.id,
+      },
+      data: {
+        carImage: uploadedImages,
+      },
+    });
+
     return res.status(200).json({
       success: true,
       message: "New car has been created",
-      data: createCar,
+      data: carCreated,
     });
   } catch (error) {
     return res.status(400).json({
@@ -172,7 +267,7 @@ const updateCarDetails = async (req: Request, res: Response) => {
         carName: carName,
         carImage: carImage,
         carNumber: carNumber,
-        distanace: distanace,
+        distance: distanace,
         capacity: capacity,
         fair: fair,
       },

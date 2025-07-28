@@ -4,6 +4,8 @@ import express from "express";
 import { userRoutes } from "./routes/user/userRoutes";
 import { adminRoutes } from "./routes/admin/adminRoute";
 import cors from "cors";
+import { upload } from "./middleware/multer/multer";
+import multer from "multer";
 
 const port = process.env.PORT;
 const app = express();

@@ -12,8 +12,6 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { generateAccessTokens, generateRefreshTokens } from "../../utils/token";
 
-const mySecret = process.env.JWT_SECRET;
-
 const prisma = new PrismaClient();
 
 // user signup end point
@@ -133,9 +131,9 @@ const userLogin = async (req: Request, res: Response) => {
       });
     }
 
-    if (!mySecret) {
-      throw new Error("Jwt secret is not defined");
-    }
+    // if (!mySecret) {
+    //   throw new Error("Jwt secret is not defined");
+    // }
 
     // const token = jwt.sign({ userId: existingUser.id }, mySecret, {
     //   expiresIn: "2h",
@@ -149,6 +147,7 @@ const userLogin = async (req: Request, res: Response) => {
       message: "User login successfull",
       accessToken: accessToken,
       refreshToken: refreshToken,
+      data: existingUser,
     });
   } catch (error) {
     return res.status(400).json({
@@ -388,10 +387,12 @@ const refreshToken = async (req: Request, res: Response) => {
     }
 
     const newAccessToken = generateAccessTokens(user.id);
+    const newRefreshToken = generateRefreshTokens(user.id);
 
     return res.status(200).json({
       success: true,
       accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     });
   } catch (error) {
     return res.status(401).json({
