@@ -17,6 +17,9 @@ import {
 
 const userRoutes = Router();
 
+// Refresh token endpoint
+userRoutes.post("/refreshToken", refreshToken);
+
 // user signup end point
 userRoutes.post("/signup", userSignup);
 
@@ -31,8 +34,6 @@ userRoutes.put("/update-details", userMiddleware, userUpdate);
 
 // delete user
 userRoutes.delete("/delete-user", userMiddleware, disableUser);
-
-userRoutes.post("/refreshToken", userMiddleware, refreshToken);
 
 // -------------------------------------------- Order end Points by users only ----------------------------------------------------
 

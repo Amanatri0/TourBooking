@@ -372,7 +372,7 @@ const refreshToken = async (req: Request, res: Response) => {
   try {
     const decoded = jwt.verify(
       incomingRefreshToken,
-      process.env.ACCESS_TOKEN_SECRET!
+      process.env.REFRESH_TOKEN_SECRET!
     ) as JwtPayload;
 
     const user = await prisma.userModel.findFirst({
