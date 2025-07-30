@@ -17,14 +17,14 @@ import {
 
 const userRoutes = Router();
 
-// Refresh token endpoint
-userRoutes.post("/refreshToken", refreshToken);
-
 // user signup end point
 userRoutes.post("/signup", userSignup);
 
 // user login end point
 userRoutes.post("/login", userLogin);
+
+// Refresh token endpoint
+userRoutes.post("/refreshToken", refreshToken);
 
 // fetching user deatils end point
 userRoutes.get("/user-details", userMiddleware, userGetDetails);

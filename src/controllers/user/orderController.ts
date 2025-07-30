@@ -219,7 +219,7 @@ const cancelTourOrder = async (req: Request, res: Response) => {
       });
     }
 
-    const createOrder = await prisma.orderModel.delete({
+    const cancelTourOrder = await prisma.orderModel.delete({
       where: {
         id: existingOrder.id,
       },
@@ -228,7 +228,7 @@ const cancelTourOrder = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: "Order Deleted successfully",
-      data: createOrder,
+      data: cancelTourOrder,
     });
   } catch (error) {
     return res.status(400).json({

@@ -58,14 +58,6 @@ adminRoutes.post(
   createCar
 );
 
-// adminRoutes.post(
-//   "/upload-carImage",
-//   userMiddleware,
-//   adminMiddleware,
-
-//   uploadImages
-// );
-
 // Can update existing cars
 adminRoutes.put(
   "/update-car",
