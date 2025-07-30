@@ -55,7 +55,7 @@ const DeleteCarSchema = z.object({
 const TourSchema = z.object({
   tourName: z.string().trim(),
   description: z.string(),
-  fair: z.number().nonnegative(),
+  fair: z.string().nonempty(),
 });
 
 // update tour
@@ -63,7 +63,7 @@ const UpdateTourSchema = z.object({
   id: z.string().nonempty().optional(),
   tourName: z.string().trim().optional(),
   description: z.string().optional(),
-  fair: z.number().nonnegative().optional(),
+  fair: z.string().nonempty().optional(),
 });
 
 // Delete tour
