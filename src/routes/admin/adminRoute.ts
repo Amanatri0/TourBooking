@@ -8,14 +8,12 @@ import { userMiddleware } from "../../middleware/userMiddleware";
 import {
   createCar,
   deleteCar,
-  getAllCarsDetail,
   getCarDetails,
   updateCarDetails,
 } from "../../controllers/admin/carsController";
 import {
   createTour,
   deleteTour,
-  getAllToursDetail,
   getTourDetails,
   updateTourDetails,
 } from "../../controllers/admin/toursController";
@@ -77,14 +75,6 @@ adminRoutes.post(
   getCarDetails
 );
 
-// can get all the cars present in the database
-adminRoutes.get(
-  "/get-allCarsDetail",
-  userMiddleware,
-  adminMiddleware,
-  getAllCarsDetail
-);
-
 // ------------------------------------------------------- Tour endpoint ----------------------------------------------------------------------
 
 // for creating tour package
@@ -96,14 +86,6 @@ adminRoutes.get(
   userMiddleware,
   adminMiddleware,
   getTourDetails
-);
-
-// to fetch all the tours details available
-adminRoutes.get(
-  "/get-allTourDetail",
-  userMiddleware,
-  adminMiddleware,
-  getAllToursDetail
 );
 
 // to update tour detail

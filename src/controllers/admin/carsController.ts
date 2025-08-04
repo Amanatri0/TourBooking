@@ -6,9 +6,6 @@ declare global {
   }
 }
 
-import dotenv from "dotenv";
-
-dotenv.config();
 import axios from "axios";
 import crypto from "crypto";
 import path from "path";
@@ -74,19 +71,8 @@ const createCar = async (req: Request, res: Response) => {
     });
   }
 
-  console.log("✅ File uploaded:");
-  console.log("Original name:", req.file.originalname);
-  console.log("MIME type:", req.file.mimetype);
-  console.log("Size (bytes):", req.file.size);
-  console.log("Buffer length:", req.file.buffer?.length);
-
-  console.log("Car Name:", req.body.carName);
-  console.log("Car Number:", req.body.carNumber);
-
   // zod input validation
   const parsedData = CarSchema.safeParse(req.body);
-
-  console.log("Parsed Data", parsedData);
 
   if (!parsedData.success) {
     return res.status(400).json({
@@ -137,8 +123,6 @@ const createCar = async (req: Request, res: Response) => {
 
     const uploadedImages = await uploadImages(file, createCar.id);
 
-    console.log(uploadedImages);
-
     if (!uploadedImages) {
       return res.status(404).json({
         success: false,
@@ -172,12 +156,16 @@ const createCar = async (req: Request, res: Response) => {
 // only admin can fetch the car by the id
 const getCarDetails = async (req: Request, res: Response) => {
   try {
-    const { id, carName } = req.body;
+    const { id, carNumber } = req.body;
 
     const existingCar = await prisma.carModel.findFirst({
       where: {
-        id: id,
-        carName: carName,
+        OR: [
+          {
+            id: id,
+          },
+          { carNumber: carNumber },
+        ],
       },
     });
 
@@ -192,25 +180,6 @@ const getCarDetails = async (req: Request, res: Response) => {
       success: true,
       message: "Car fetched successfully",
       data: existingCar,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Something went wrong while Fetching Car",
-      error: (error as Error).message,
-    });
-  }
-};
-
-// only amdin can see all the cars and car details
-const getAllCarsDetail = async (req: Request, res: Response) => {
-  try {
-    const allCarsDetail = await prisma.carModel.findMany({});
-
-    return res.status(200).json({
-      success: true,
-      message: "Car fetched successfully",
-      data: allCarsDetail,
     });
   } catch (error) {
     return res.status(400).json({
@@ -273,7 +242,7 @@ const updateCarDetails = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(400).json({
+    return res.status(200).json({
       success: true,
       message: "Car details updated successfully",
       data: updateCarDetails,
@@ -353,10 +322,4 @@ const deleteCar = async (req: Request, res: Response) => {
   }
 };
 
-export {
-  createCar,
-  getCarDetails,
-  getAllCarsDetail,
-  updateCarDetails,
-  deleteCar,
-};
+export { createCar, getCarDetails, updateCarDetails, deleteCar };

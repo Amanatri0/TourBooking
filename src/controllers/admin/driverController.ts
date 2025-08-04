@@ -65,6 +65,19 @@ const addDriver = async (req: Request, res: Response) => {
       });
     }
 
+    const alreadyCarAlloted = await prisma.driverModel.findFirst({
+      where: {
+        carModelId: carId,
+      },
+    });
+
+    if (alreadyCarAlloted) {
+      return res.status(400).json({
+        success: false,
+        message: "Car already Assigned to another driver",
+      });
+    }
+
     const createDriver = await prisma.driverModel.create({
       data: {
         driverName: driverName,

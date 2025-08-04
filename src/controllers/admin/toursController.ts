@@ -99,25 +99,6 @@ const getTourDetails = async (req: Request, res: Response) => {
   }
 };
 
-// admin can get all tours details
-const getAllToursDetail = async (req: Request, res: Response) => {
-  try {
-    const allToursDetail = await prisma.tourModel.findMany({});
-
-    return res.status(200).json({
-      success: true,
-      message: "Tour fetched successfully",
-      data: allToursDetail,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Something went wrong while Fetching Tour",
-      error: (error as Error).message,
-    });
-  }
-};
-
 // admin can update tour details
 const updateTourDetails = async (req: Request, res: Response) => {
   const adminId = req.userId;
@@ -166,7 +147,7 @@ const updateTourDetails = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(400).json({
+    return res.status(200).json({
       success: true,
       message: "Tour details updated successfully",
       data: updateTourDetails,
@@ -245,10 +226,4 @@ const deleteTour = async (req: Request, res: Response) => {
   }
 };
 
-export {
-  createTour,
-  getTourDetails,
-  getAllToursDetail,
-  updateTourDetails,
-  deleteTour,
-};
+export { createTour, getTourDetails, updateTourDetails, deleteTour };

@@ -2,6 +2,8 @@ import { Router } from "express";
 import { userMiddleware } from "../../middleware/userMiddleware";
 import {
   disableUser,
+  getAllCarsDetail,
+  getAllToursDetail,
   refreshToken,
   userGetDetails,
   userLogin,
@@ -36,6 +38,12 @@ userRoutes.put("/update-details", userMiddleware, userUpdate);
 userRoutes.delete("/delete-user", userMiddleware, disableUser);
 
 // -------------------------------------------- Order end Points by users only ----------------------------------------------------
+
+// can get all the cars present in the database
+userRoutes.get("/get-allCarsDetail", userMiddleware, getAllCarsDetail);
+
+// to fetch all the tours details available
+userRoutes.get("/get-allTourDetail", userMiddleware, getAllToursDetail);
 
 // for creating car order
 userRoutes.post("/create-carorder", userMiddleware, createCarOrder);

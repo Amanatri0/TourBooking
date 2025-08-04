@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import { Request, Response } from "express";
 import {
   LoginSchema,
@@ -31,6 +28,8 @@ const userSignup = async (req: Request, res: Response) => {
   try {
     // check for already existing users
 
+    const { username, email, password } = parsedData.data;
+
     const existingUser = await prisma.userModel.findFirst({
       where: {
         email: parsedData.data.email,
@@ -44,12 +43,12 @@ const userSignup = async (req: Request, res: Response) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(parsedData.data.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const userData = await prisma.userModel.create({
       data: {
-        username: parsedData.data.username,
-        email: parsedData.data.email,
+        username: username,
+        email: email,
         password: hashedPassword,
       },
     });
@@ -112,7 +111,7 @@ const userLogin = async (req: Request, res: Response) => {
     }
 
     //password verification
-    if (!password || typeof password !== "string") {
+    if (!password) {
       return res.status(400).json({
         success: false,
         message: "Password/Email is incorrect, while Login",
@@ -131,13 +130,6 @@ const userLogin = async (req: Request, res: Response) => {
       });
     }
 
-    // if (!mySecret) {
-    //   throw new Error("Jwt secret is not defined");
-    // }
-
-    // const token = jwt.sign({ userId: existingUser.id }, mySecret, {
-    //   expiresIn: "2h",
-    // });
     const accessToken = generateAccessTokens(existingUser.id);
 
     const refreshToken = generateRefreshTokens(existingUser.id);
@@ -273,7 +265,7 @@ const userUpdate = async (req: Request, res: Response) => {
         username: username,
         email: email,
         password: hashedPassword,
-        // phoneNumber: phoneNumber,
+        phoneNumber: phoneNumber,
       },
     });
 
@@ -354,8 +346,45 @@ const disableUser = async (req: Request, res: Response) => {
   }
 };
 
-// refresh and access token endpoints
+// fetch all the cars and car details
+const getAllCarsDetail = async (req: Request, res: Response) => {
+  try {
+    const allCarsDetail = await prisma.carModel.findMany({});
 
+    return res.status(200).json({
+      success: true,
+      message: "Car fetched successfully",
+      data: allCarsDetail,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong while Fetching Car",
+      error: (error as Error).message,
+    });
+  }
+};
+
+// get all tours details
+const getAllToursDetail = async (req: Request, res: Response) => {
+  try {
+    const allToursDetail = await prisma.tourModel.findMany({});
+
+    return res.status(200).json({
+      success: true,
+      message: "Tour fetched successfully",
+      data: allToursDetail,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong while Fetching Tour",
+      error: (error as Error).message,
+    });
+  }
+};
+
+// refresh and access token endpoints
 const refreshToken = async (req: Request, res: Response) => {
   const incomingRefreshToken =
     req.cookies?.refreshToken ||
@@ -409,4 +438,6 @@ export {
   userUpdate,
   disableUser,
   refreshToken,
+  getAllCarsDetail,
+  getAllToursDetail,
 };
