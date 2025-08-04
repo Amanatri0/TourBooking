@@ -60,10 +60,6 @@ const createCar = async (req: Request, res: Response) => {
   // get the file from the file-data
   const file = req.file;
 
-  console.log("Req body", req.body);
-
-  console.log("Fie name", file);
-
   if (!req.file || !file) {
     return res.status(404).json({
       success: false,

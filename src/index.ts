@@ -4,8 +4,6 @@ import express from "express";
 import { userRoutes } from "./routes/user/userRoutes";
 import { adminRoutes } from "./routes/admin/adminRoute";
 import cors from "cors";
-import { upload } from "./middleware/multer/multer";
-import multer from "multer";
 
 const port = process.env.PORT;
 const app = express();
@@ -27,6 +25,24 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    if (err instanceof SyntaxError && "body" in err) {
+      console.error("❌ Invalid JSON received:", err.message);
+      return res.status(400).json({
+        success: false,
+        message: "Invalid JSON format in request body",
+      });
+    }
+    next();
+  }
+);
 
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
